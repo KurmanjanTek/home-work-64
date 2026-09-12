@@ -1,0 +1,95 @@
+@using home_work_54_lab_work.Enums
+@model IEnumerable<home_work_54_lab_work.Models.TaskItem>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+    <tr>
+        <th>
+            Номер
+        </th>
+        <th>
+            Название задачи
+        </th>
+     
+        <th>
+            Приоритет
+        </th>
+        <th>
+            Статус
+        </th>
+        
+        <th>Действия</th>
+    </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.Id)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Name)
+        </td>
+        <td>
+            @switch (item.Prioritety)
+            {
+                case Priority.Low:
+                    <span>Низкий</span>
+                    break;
+                case Priority.Medium:
+                    <span>Средний</span>
+                    break;
+                case Priority.High:
+                    <span>Высокий</span>
+                    break;
+            }
+            
+        </td>
+        <td>
+            @switch (item.Status)
+            {
+                case ToDoStatus.New:
+                    <span>Новая</span>
+                    break;
+                case ToDoStatus.InProgress:
+                    <span>Открыта</span>
+                    break;
+                case ToDoStatus.Done:
+                    <span>Закрыта</span>
+                    break;
+            }
+        </td>
+        
+        <td>
+            @if (item.Status == ToDoStatus.New)
+            {
+            <a asp-action="Open" asp-route-id="@item.Id">Открыть</a> 
+            <a asp-action="Details" asp-route-id="@item.Id">Детали</a> 
+            <a asp-action="Delete" asp-route-id="@item.Id">Удалить</a>
+            }
+            else if (item.Status == ToDoStatus.InProgress)
+            {
+                <a asp-action="Close" asp-route-id="@item.Id">Закрыть</a> 
+                <a asp-action="Details" asp-route-id="@item.Id">Детали</a> 
+            }
+            else if (item.Status == ToDoStatus.Done)
+            {
+                <a asp-action="Delete" asp-route-id="@item.Id">Удалить</a>
+                <a asp-action="Details" asp-route-id="@item.Id">Детали</a> 
+            }
+            
+            
+        </td>
+    </tr>
+}
+    </tbody>
+</table>

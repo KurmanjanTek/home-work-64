@@ -1,0 +1,86 @@
+@using home_work_54_lab_work.Enums
+@model home_work_54_lab_work.Models.TaskItem
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+<p>ClosedDate: @Model.ClosedDate</p>
+<div>
+    <h4>TaskItem</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            Название задачи
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt class = "col-sm-2">
+            Описание
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+        <dt class = "col-sm-2">
+            Приоритет
+        </dt>
+        <dd class="col-sm-10">
+            @switch (Model.Prioritety)
+            {
+                case Priority.Low :
+                    <span>Низкий</span> 
+                    break;
+                case Priority.Medium:
+                    <span>Средний</span>
+                    break;
+                case Priority.High:
+                    <span>Высокий</span>
+                    break;
+            }
+            
+        </dd>
+        <dt class = "col-sm-2">
+            Статус
+        </dt>
+        <dd class = "col-sm-10">
+            @switch (Model.Status)
+            {
+                case ToDoStatus.New:
+                    <span>Новая</span>
+                    break;
+                case ToDoStatus.InProgress:
+                    <span>Открыта</span>
+                    break;
+                case ToDoStatus.Done:
+                    <span>Закрыта</span>
+                    break;
+            }
+        </dd>
+        <dt class = "col-sm-2">
+            Исполнитель
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.ExecuterName)
+        </dd>
+        
+        @if (Model.Status == ToDoStatus.Done)
+        {
+            <dt class="col-sm-2">Дата закрытия</dt>
+            <dd class="col-sm-10">
+                @Model.ClosedDate
+            </dd>
+        }
+        else
+        {
+            <dt class="col-sm-2">Дата создания</dt>
+            <dd class="col-sm-10">
+                @Model.CreatedDate.ToString("dd.MM.yyyy HH:mm")
+            </dd>
+        }
+     </dl>
+</div>
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
