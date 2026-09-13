@@ -21,9 +21,72 @@ namespace home_work_54_lab_work.Controllers
         }
 
         // GET: TaskItem
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(ToDoTaskSortState sortOrder, string name, string description, DateTime? dateFrom, DateTime? dateTo, Priority? priority, ToDoStatus? status)
         {
-            return View(await _context.TaskItems.ToListAsync());
+            ViewBag.NameSort=sortOrder==ToDoTaskSortState.NameAsc ? ToDoTaskSortState.NameDesc : ToDoTaskSortState.NameAsc;
+            ViewBag.PrioritySort=sortOrder==ToDoTaskSortState.PriorityAsc ? ToDoTaskSortState.PriorityDesc : ToDoTaskSortState.PriorityAsc;
+            ViewBag.StatusSort=sortOrder==ToDoTaskSortState.StatusAsc ? ToDoTaskSortState.StatusDesc : ToDoTaskSortState.StatusAsc;
+            ViewBag.CreatedDateSort=sortOrder==ToDoTaskSortState.CreatedDateAsc ? ToDoTaskSortState.CreatedDateDesc : ToDoTaskSortState.CreatedDateAsc;
+            var tasks=_context.TaskItems.ToList();
+            
+            if (!string.IsNullOrEmpty(name))
+            {
+                tasks = tasks.Where(t => t.Name.ToLower().Contains(name.ToLower())).ToList();
+            }
+            
+            if (!string.IsNullOrEmpty(description))
+            {
+                tasks = tasks.Where(t => t.Description.ToLower().Contains(description.ToLower())).ToList();
+            }
+
+            if (dateFrom.HasValue)
+            {
+                tasks = tasks.Where(t => t.CreatedDate >= dateFrom.Value).ToList();
+            }
+            
+            if (dateTo.HasValue)
+            {
+                tasks = tasks.Where(t => t.CreatedDate <= dateTo.Value).ToList();
+            }
+            
+            if (status.HasValue)
+            {
+                tasks = tasks.Where(t => t.Status == status.Value).ToList();
+            }
+            
+            if (priority.HasValue)
+            {
+                tasks = tasks.Where(t => t.Prioritety == priority.Value).ToList();
+            }
+
+            switch (sortOrder)
+            {
+                case ToDoTaskSortState.NameAsc:
+                    tasks=tasks.OrderBy(t => t.Name).ToList();
+                    break;
+                case ToDoTaskSortState.NameDesc:
+                    tasks=tasks.OrderByDescending(t => t.Name).ToList();
+                    break;
+                case ToDoTaskSortState.PriorityAsc:
+                    tasks=tasks.OrderBy(t => t.Prioritety).ToList();
+                    break;
+                case ToDoTaskSortState.PriorityDesc:
+                    tasks=tasks.OrderByDescending(t => t.Prioritety).ToList();
+                    break;
+                case ToDoTaskSortState.StatusAsc:
+                    tasks=tasks.OrderBy(t => t.Status).ToList();
+                    break;
+                case ToDoTaskSortState.StatusDesc:
+                    tasks=tasks.OrderByDescending(t => t.Status).ToList();
+                    break;
+                case ToDoTaskSortState.CreatedDateAsc:
+                    tasks=tasks.OrderBy(t => t.CreatedDate).ToList();
+                    break;
+                case ToDoTaskSortState.CreatedDateDesc:
+                    tasks=tasks.OrderByDescending(t => t.CreatedDate).ToList();
+                    break;
+            }
+            return View(tasks);
         }
 
         // GET: TaskItem/Details/5

@@ -5,11 +5,52 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<form asp-action="Index" method="get">
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+    <div>
+        <label for="name">Название:</label>
+        <input type="text" name="name" id="name" />
+    </div>
+
+    <div>
+        <label for="description">Описание:</label>
+        <input type="text" name="description" />
+    </div>
+
+    <div>
+        <label for="dateFrom">Дата создания от:</label>
+        <input type="date" name="dateFrom" />
+    </div>
+
+    <div>
+        <label for="dateTo">Дата создания до:</label>
+        <input type="date" name="dateTo" />
+    </div>
+    
+    <div>
+        <label>Приоритет:</label>
+        <select name="priority">
+            <option value="">Все</option>
+            <option value="1">Низкий</option>
+            <option value="2">Средний</option>
+            <option value="3">Высокий</option>
+        </select>
+    </div>
+    
+    <div>
+        <label>Статус:</label>
+        <select name="status">
+            <option value="">Все</option>
+            <option value="1">Новая</option>
+            <option value="2">Открыта</option>
+            <option value="3">Закрыта</option>
+        </select>
+    </div>
+
+    <button type="submit">Фильтр</button>
+
+</form>
+
 <table class="table">
     <thead>
     <tr>
@@ -17,14 +58,25 @@
             Номер
         </th>
         <th>
-            Название задачи
-        </th>
+            <a asp-action="Index" asp-route-sortOrder="@ViewBag.NameSort">
+                Название задачи
+            </a>
+            </th>
      
         <th>
-            Приоритет
+            <a asp-action="Index" asp-route-sortOrder="@ViewBag.PrioritySort">
+                Приоритет
+            </a>
         </th>
         <th>
-            Статус
+            <a asp-action="Index" asp-route-sortOrder="@ViewBag.StatusSort">
+                Статус
+            </a>
+        </th>
+        <th>
+            <a asp-action="Index" asp-route-sortOrder="@ViewBag.CreatedDateSort">
+                Дата создания
+            </a>
         </th>
         
         <th>Действия</th>
@@ -52,8 +104,7 @@
                     <span>Высокий</span>
                     break;
             }
-            
-        </td>
+           </td>
         <td>
             @switch (item.Status)
             {
@@ -68,13 +119,16 @@
                     break;
             }
         </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.CreatedDate)
+        </td>
         
         <td>
             @if (item.Status == ToDoStatus.New)
             {
-            <a asp-action="Open" asp-route-id="@item.Id">Открыть</a> 
-            <a asp-action="Details" asp-route-id="@item.Id">Детали</a> 
-            <a asp-action="Delete" asp-route-id="@item.Id">Удалить</a>
+                <a asp-action="Open" asp-route-id="@item.Id">Открыть</a> 
+                <a asp-action="Details" asp-route-id="@item.Id">Детали</a> 
+                <a asp-action="Delete" asp-route-id="@item.Id">Удалить</a>
             }
             else if (item.Status == ToDoStatus.InProgress)
             {
@@ -86,8 +140,6 @@
                 <a asp-action="Delete" asp-route-id="@item.Id">Удалить</a>
                 <a asp-action="Details" asp-route-id="@item.Id">Детали</a> 
             }
-            
-            
         </td>
     </tr>
 }
