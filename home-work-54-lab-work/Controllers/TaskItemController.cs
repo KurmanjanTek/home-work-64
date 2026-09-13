@@ -21,7 +21,7 @@ namespace home_work_54_lab_work.Controllers
         }
 
         // GET: TaskItem
-        public async Task<IActionResult> Index(ToDoTaskSortState sortOrder, string name, string description, DateTime? dateFrom, DateTime? dateTo, Priority? priority, ToDoStatus? status)
+        public async Task<IActionResult> Index(ToDoTaskSortState sortOrder, string name, string description, DateTime? dateFrom, DateTime? dateTo, Priority? priority, ToDoStatus? status, int page=1)
         {
             ViewBag.NameSort=sortOrder==ToDoTaskSortState.NameAsc ? ToDoTaskSortState.NameDesc : ToDoTaskSortState.NameAsc;
             ViewBag.PrioritySort=sortOrder==ToDoTaskSortState.PriorityAsc ? ToDoTaskSortState.PriorityDesc : ToDoTaskSortState.PriorityAsc;
@@ -86,7 +86,16 @@ namespace home_work_54_lab_work.Controllers
                     tasks=tasks.OrderByDescending(t => t.CreatedDate).ToList();
                     break;
             }
-            return View(tasks);
+            int pageSize = 10;
+            var count=tasks.Count();
+            var items=tasks.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+            PageViewModel pvm = new PageViewModel(count, page, pageSize);
+            TaskIndexViewModel tivm = new TaskIndexViewModel()
+            {
+                TaskItems = items,
+                PageViewModel = pvm
+            };
+            return View(tivm);
         }
 
         // GET: TaskItem/Details/5

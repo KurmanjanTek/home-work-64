@@ -1,5 +1,5 @@
 @using home_work_54_lab_work.Enums
-@model IEnumerable<home_work_54_lab_work.Models.TaskItem>
+@model home_work_54_lab_work.ViewModels.TaskIndexViewModel
 
 @{
     ViewData["Title"] = "Index";
@@ -61,7 +61,7 @@
             <a asp-action="Index" asp-route-sortOrder="@ViewBag.NameSort">
                 Название задачи
             </a>
-            </th>
+        </th>
      
         <th>
             <a asp-action="Index" asp-route-sortOrder="@ViewBag.PrioritySort">
@@ -83,65 +83,85 @@
     </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.Id)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Name)
-        </td>
-        <td>
-            @switch (item.Prioritety)
-            {
-                case Priority.Low:
-                    <span>Низкий</span>
-                    break;
-                case Priority.Medium:
-                    <span>Средний</span>
-                    break;
-                case Priority.High:
-                    <span>Высокий</span>
-                    break;
-            }
-           </td>
-        <td>
-            @switch (item.Status)
-            {
-                case ToDoStatus.New:
-                    <span>Новая</span>
-                    break;
-                case ToDoStatus.InProgress:
-                    <span>Открыта</span>
-                    break;
-                case ToDoStatus.Done:
-                    <span>Закрыта</span>
-                    break;
-            }
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.CreatedDate)
-        </td>
+    @foreach (var item in Model.TaskItems) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @switch (item.Prioritety)
+                {
+                    case Priority.Low:
+                        <span>Низкий</span>
+                        break;
+                    case Priority.Medium:
+                        <span>Средний</span>
+                        break;
+                    case Priority.High:
+                        <span>Высокий</span>
+                        break;
+                }
+            </td>
+            <td>
+                @switch (item.Status)
+                {
+                    case ToDoStatus.New:
+                        <span>Новая</span>
+                        break;
+                    case ToDoStatus.InProgress:
+                        <span>Открыта</span>
+                        break;
+                    case ToDoStatus.Done:
+                        <span>Закрыта</span>
+                        break;
+                }
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreatedDate)
+            </td>
         
-        <td>
-            @if (item.Status == ToDoStatus.New)
-            {
-                <a asp-action="Open" asp-route-id="@item.Id">Открыть</a> 
-                <a asp-action="Details" asp-route-id="@item.Id">Детали</a> 
-                <a asp-action="Delete" asp-route-id="@item.Id">Удалить</a>
-            }
-            else if (item.Status == ToDoStatus.InProgress)
-            {
-                <a asp-action="Close" asp-route-id="@item.Id">Закрыть</a> 
-                <a asp-action="Details" asp-route-id="@item.Id">Детали</a> 
-            }
-            else if (item.Status == ToDoStatus.Done)
-            {
-                <a asp-action="Delete" asp-route-id="@item.Id">Удалить</a>
-                <a asp-action="Details" asp-route-id="@item.Id">Детали</a> 
-            }
-        </td>
-    </tr>
-}
+            <td>
+                @if (item.Status == ToDoStatus.New)
+                {
+                    <a asp-action="Open" asp-route-id="@item.Id">Открыть</a> 
+                    <a asp-action="Details" asp-route-id="@item.Id">Детали</a> 
+                    <a asp-action="Delete" asp-route-id="@item.Id">Удалить</a>
+                }
+                else if (item.Status == ToDoStatus.InProgress)
+                {
+                    <a asp-action="Close" asp-route-id="@item.Id">Закрыть</a> 
+                    <a asp-action="Details" asp-route-id="@item.Id">Детали</a> 
+                }
+                else if (item.Status == ToDoStatus.Done)
+                {
+                    <a asp-action="Delete" asp-route-id="@item.Id">Удалить</a>
+                    <a asp-action="Details" asp-route-id="@item.Id">Детали</a> 
+                }
+            </td>
+        </tr>
+    }
     </tbody>
 </table>
+@if (Model.PageViewModel.HasPreviousPage)
+{
+<a asp-action="Index" asp-route-page="@(Model.PageViewModel.PageNumber-1)" class="btn-outline-light">Предыдущая</a>
+}
+@for (int i = 1; i <= Model.PageViewModel.TotalPages; i++)
+{
+if (i == Model.PageViewModel.PageNumber)
+{
+<span class="btn btn-success">@i</span>
+}
+else
+{
+<a asp-action="Index" asp-route-page="@i" class="btn-outline-light">@i</a>
+}
+}
+@if (Model.PageViewModel.HasNextPage)
+{
+<a asp-action="Index" asp-route-page="@(Model.PageViewModel.PageNumber+1)" class="btn-outline-light">Следующая</a>
+}
+
