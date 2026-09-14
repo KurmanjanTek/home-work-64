@@ -129,6 +129,7 @@
                     <a asp-action="Open" asp-route-id="@item.Id">Открыть</a> 
                     <a asp-action="Details" asp-route-id="@item.Id">Детали</a> 
                     <a asp-action="Delete" asp-route-id="@item.Id">Удалить</a>
+                    <a asp-action="TakeTask" asp-route-id="@item.Id">Взять задачу</a>
                 }
                 else if (item.Status == ToDoStatus.InProgress)
                 {

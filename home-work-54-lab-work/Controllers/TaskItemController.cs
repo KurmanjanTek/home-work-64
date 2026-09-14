@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using home_work_54_lab_work.Enums;
 using Microsoft.AspNetCore.Mvc;
@@ -8,16 +9,21 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using home_work_54_lab_work.Models;
 using home_work_54_lab_work.ViewModels;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace home_work_54_lab_work.Controllers
 {
+    [Authorize]
     public class TaskItemController : Controller
     {
         private readonly TaskContext _context;
+        private readonly UserManager<User> _userManager;
 
-        public TaskItemController(TaskContext context)
+        public TaskItemController(TaskContext context, UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: TaskItem
@@ -132,14 +138,14 @@ namespace home_work_54_lab_work.Controllers
         {
             if (ModelState.IsValid)
             {
+                var userId =int.Parse(_userManager.GetUserId(User)) ;
                 var task = new TaskItem
                 {
                     Name = model.Name,
                     Description = model.Description,
                     Prioritety = model.Prioritety,
-                    ExecuterName = model.ExecuterName,
-                    
                     Status=ToDoStatus.New,
+                    CreatorId =userId,
                     CreatedDate=DateTime.UtcNow,
                     ClosedDate= null
                 };
@@ -163,6 +169,24 @@ namespace home_work_54_lab_work.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        public async Task<IActionResult> TakeTask(int id)
+        {
+            var taskItem=await _context.TaskItems.FindAsync(id);
+
+            if (taskItem == null)
+                return NotFound();
+            
+            var userId =int.Parse(_userManager.GetUserId(User)) ;
+            
+            taskItem.CreatorId=userId;
+            taskItem.ExucutorId = userId;
+            User.IsInRole("admin");
+            
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+
+        }
+
         public async Task<IActionResult> Close(int id)
         {
             var taskItem= await _context.TaskItems.FindAsync(id);
@@ -170,9 +194,14 @@ namespace home_work_54_lab_work.Controllers
             {
                 return NotFound();
             }
-            taskItem.ClosedDate=DateTime.UtcNow;
-            taskItem.Status= ToDoStatus.Done;
-            await _context.SaveChangesAsync();
+
+            if (User.IsInRole("admin"))
+            {
+                taskItem.ClosedDate=DateTime.UtcNow;
+                taskItem.Status= ToDoStatus.Done; 
+                await _context.SaveChangesAsync();
+            }
+            
 
             return RedirectToAction(nameof(Index));
         }
@@ -190,7 +219,12 @@ namespace home_work_54_lab_work.Controllers
             {
                 return NotFound();
             }
-            return View(taskItem);
+            var userId =int.Parse(_userManager.GetUserId(User)) ;
+            if (taskItem.CreatorId == userId || User.IsInRole("admin"))
+            {
+                return View(taskItem);
+            }
+            return RedirectToAction(nameof(Index));
         }
 
         // POST: TaskItem/Edit/5
@@ -198,34 +232,27 @@ namespace home_work_54_lab_work.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Prioritety,Status,ExecuterName,CreatedDate,ClosedDate")] TaskItem taskItem)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Prioritety,Status,CreatedDate,ClosedDate")] TaskItem task)
         {
-            if (id != taskItem.Id)
+            var taskItem=await _context.TaskItems.FindAsync(id);
+            if (taskItem == null)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            var userId =int.Parse(_userManager.GetUserId(User)) ;
+
+            if (taskItem.CreatorId == userId)
             {
-                try
-                {
-                    _context.Update(taskItem);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!TaskItemExists(taskItem.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                taskItem.Name = task.Name;
+                taskItem.Description = task.Description;
+                taskItem.Prioritety = task.Prioritety;
+
+                await _context.SaveChangesAsync();
+
             }
-            return View(taskItem);
+
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: TaskItem/Delete/5
@@ -242,8 +269,13 @@ namespace home_work_54_lab_work.Controllers
             {
                 return NotFound();
             }
+            var userId =int.Parse(_userManager.GetUserId(User)) ;
+             if (taskItem.CreatorId == userId || User.IsInRole("admin"))
+             {
+                 return View(taskItem);
+             }
 
-            return View(taskItem);
+             return RedirectToAction(nameof(Index));
         }
 
         // POST: TaskItem/Delete/5
@@ -252,13 +284,55 @@ namespace home_work_54_lab_work.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var taskItem = await _context.TaskItems.FindAsync(id);
-            if (taskItem != null)
+            if (taskItem == null)
             {
-                _context.TaskItems.Remove(taskItem);
+                NotFound();
+            }
+            var userId =int.Parse(_userManager.GetUserId(User)) ;
+            if (taskItem.CreatorId == userId || User.IsInRole("admin"))
+            {
+               _context.TaskItems.Remove(taskItem);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> ChangeStatus(int id, ToDoStatus status)
+        {
+            var taskItem = await _context.TaskItems.FindAsync(id);
+            if (taskItem == null)
+            {
+                NotFound();
+            }
+            var userId =int.Parse(_userManager.GetUserId(User)) ;
+            if (taskItem.CreatorId == userId || User.IsInRole("admin"))
+            {
+                taskItem.Status = status;
+                await _context.SaveChangesAsync();
+                
+            }
+            return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> MyTasks()
+        {
+            var userId =int.Parse(_userManager.GetUserId(User)) ;
+            var tasks=await _context.TaskItems.Where(t=>t.ExucutorId==userId).ToListAsync();
+            return View(tasks);
+        }
+        
+        public async Task<IActionResult> FreeTasks()
+        {
+            var tasks=await _context.TaskItems.Where(t=>t.ExucutorId==null).ToListAsync();
+            return View(tasks);
+        }
+        
+        public async Task<IActionResult> ByCreatorTasks()
+        {
+            var userId =int.Parse(_userManager.GetUserId(User)) ;
+            var tasks=await _context.TaskItems.Where(t=>t.CreatorId==userId).ToListAsync();
+            return View(tasks);
         }
 
         private bool TaskItemExists(int id)

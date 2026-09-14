@@ -1,2 +1,18 @@
-@model TModel
+@model  IEnumerable<TaskItem>
+
+<h3>Мною созданные задачи</h3>
+
+@foreach (var item in Model)
+{
+    <div>
+        <h4>@item.Name</h4>
+        <p>@item.Description</p>
+        <p>Приоритет: @item.Prioritety</p>
+        <p>Статус: @item.Status</p>
+        <p>Дата создания: @item.CreatedDate</p>
+        
+        <a asp-controller="TaskItem" asp-action="Details" asp-route-id="@item.Id">Подробнее</a>
+        <a asp-controller="TaskItem"  asp-action="TakeTask" asp-route-id="@item.Id">Взять задачу</a>
+    </div>
+}
 

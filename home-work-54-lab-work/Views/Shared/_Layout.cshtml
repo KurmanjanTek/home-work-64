@@ -26,6 +26,35 @@
                     <li class="nav-item">
                         <a class="nav-link text-dark" asp-area="" asp-controller="TaskItem" asp-action="Create">Добавить задачу</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="TaskItem" asp-action="MyTasks">Мои задачи</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="TaskItem" asp-action="FreeTasks">Свободные задачи</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="TaskItem" asp-action="ByCreatorTasks">Мною созданные задачи</a>
+                    </li>
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <li class="nav-item">
+                            <form asp-area="" asp-action="LogOff" asp-controller="Account">
+                                <input type="submit" value="Logout" class="nav-link text-dark"/>
+                            </form>
+                        </li>
+                        <li class="nav-item">
+                            <span class="nav-link text-dark">@User.Identity.Name</span>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Register">Register</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login">Login</a>
+                        </li>
+                    }
                 </ul>
             </div>
         </div>
