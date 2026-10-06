@@ -1,0 +1,78 @@
+@model home_work_54_lab_work.Models.Book
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Book</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
+<div>
+    @if (@Model.Comments  != null)
+    {
+        <p>Комментарии (@Model.Comments.Count)</p> 
+    }
+    <a onclick="openCommentForm()" style="cursor: pointer">Оставить комментарий</a>
+</div>
+
+<div id="postdiv" style="display:none">
+    <textarea id="posttext"></textarea>
+    <input type="button" id="postComment" onclick="sendComment('@Model.Id', '@ViewBag.UserId')" value="Отправить"/>
+</div>
+
+<div id="comments">
+    @if (@Model.Comments  != null)
+    {
+        foreach(var comment in Model.Comments)
+        {
+            <hr/>
+            <div>
+                <div>Name: @comment.User.UserName</div>
+                <div>Comment: <br> @comment.Body</div>
+            </div>
+            <hr/>
+        }
+    }
+    
+    
+</div>
+@section Scripts
+{
+    <script>
+   function openCommentForm() {
+               $('#postdiv').show();
+           }
+
+   function sendComment(bookId, userId) {
+               $.ajax({
+                   url: '@Url.Action("Comment", "Book")',
+                   type: 'POST',
+                   data: { 'bookId': bookId, 'userId': userId, 'content': $('#posttext').val() },
+                   success: console.log('все ок')
+               });
+           }
+           let interval=setInterval(function (){
+               $('#comments').html('');
+               $.get('@Url.Action("GetComments", "Book")?bookId=' +@Model.Id, function(data){
+                   for(let i=0; i<data.length;  i++){
+                       $('#comments').append($('<hr/> <div> <div>Name:'+ data[i].user.userName + '</div> <div>Comment: <br>'+ data[i].Body +'</div> </div> <hr/>'));
+                   }
+               });
+           }, 1000);
+ </script>
+}

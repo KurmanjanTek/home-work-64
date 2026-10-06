@@ -8,6 +8,7 @@ public class TaskContext : IdentityDbContext<User, IdentityRole<int>, int>
 {
     public DbSet<TaskItem> TaskItems { get; set; }
     public DbSet<User>Users { get; set; }
-    
+    public DbSet<Book> Books { get; set; }
+    public DbSet<Comment> Comments {get; set;}
     public TaskContext(DbContextOptions<TaskContext> options) : base(options) {}
 }

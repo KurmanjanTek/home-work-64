@@ -35,6 +35,12 @@
                     <li class="nav-item">
                         <a class="nav-link text-dark" asp-area="" asp-controller="TaskItem" asp-action="ByCreatorTasks">Мною созданные задачи</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Book" asp-action="Create">Книги</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Book" asp-action="SearchAjax">Книги</a>
+                    </li>
                     @if (User.Identity.IsAuthenticated)
                     {
                         <li class="nav-item">

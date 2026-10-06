@@ -1,0 +1,29 @@
+
+@{
+    ViewBag.Title = "Поиск книг";
+    Layout = "_Layout";
+}
+<input type="text" name="searchKey" id="search" /> //название книги по поиску
+<input type='button' id="submit" value='Найти' /> //отправляет запрос на сервер
+<div id="results"></div>
+<div id="test"></div>
+
+@section Scripts
+{
+    <script>
+       $(document).ready(function () {
+           $('#submit').click(function (event) {
+               event.preventDefault();
+                  let searchKey = $('#search').val();
+               searchKey = encodeURIComponent(searchKey);
+               $('#results').load('@Url.Action("SearchAjaxResult", "Book")?keyWord=' + searchKey);
+               $.get('@Url.Action("TestSearch","Book")?keyWord=' + searchKey, function(data){
+                   for(let i = 0; i < data.length; i++){
+                       $('#test').append($('<div>'+  data[i].name + '</div>'));
+                   }
+               });
+           });
+       });
+   </script>
+}
+

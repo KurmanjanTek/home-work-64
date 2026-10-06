@@ -25,7 +25,8 @@ namespace home_work_54_lab_work.Controllers
             _context = context;
             _userManager = userManager;
         }
-
+        
+        [ResponseCache(Location = ResponseCacheLocation.Client, Duration = 300, Order=1)]
         // GET: TaskItem
         public async Task<IActionResult> Index(ToDoTaskSortState sortOrder, string name, string description, DateTime? dateFrom, DateTime? dateTo, Priority? priority, ToDoStatus? status, int page=1)
         {
@@ -138,7 +139,7 @@ namespace home_work_54_lab_work.Controllers
         {
             if (ModelState.IsValid)
             {
-                var userId =int.Parse(_userManager.GetUserId(User)) ;
+                var userId =int.Parse(_userManager.GetUserId(User));
                 var task = new TaskItem
                 {
                     Name = model.Name,
